@@ -12,6 +12,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Basic routes (useful for Render / uptime checks)
+app.get('/', (req, res) => {
+  res.status(200).send('PMS Backend is running. Use /api/* endpoints.');
+});
+
+app.get('/health', (req, res) => {
+  res.status(200).json({ status: 'ok' });
+});
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/pms', {
   useNewUrlParser: true,
