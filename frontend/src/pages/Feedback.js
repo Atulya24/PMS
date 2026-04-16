@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
@@ -21,14 +21,7 @@ const Feedback = () => {
     type: 'self',
   });
 
-  useEffect(() => {
-    fetchFeedback();
-    if (user.role === 'manager') {
-      fetchPendingGoals();
-    }
-  }, []);
-
-  const fetchFeedback = async () => {
+  const fetchFeedback = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/feedback/user/${user.id}`);
       setFeedback(response.data);
@@ -37,16 +30,23 @@ const Feedback = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user.id]);
 
-  const fetchPendingGoals = async () => {
+  const fetchPendingGoals = useCallback(async () => {
     try {
       const response = await axios.get(`${API_BASE_URL}/feedback/pending`);
       setPendingGoals(response.data);
     } catch (err) {
       console.error('Failed to fetch pending goals:', err);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchFeedback();
+    if (user.role === 'manager') {
+      fetchPendingGoals();
+    }
+  }, [fetchFeedback, fetchPendingGoals, user.role]);
 
   const fetchGoals = async (userId) => {
     try {

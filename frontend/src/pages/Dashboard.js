@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
@@ -11,11 +11,7 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  useEffect(() => {
-    fetchDashboardData();
-  }, []);
-
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     try {
       if (user.role === 'admin') {
         const [statsRes, goalsRes] = await Promise.all([
@@ -35,7 +31,12 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+
+  }, [user.role]);
+
+  useEffect(() => {
+    fetchDashboardData();
+  }, [fetchDashboardData]);
 
   const clamp = (n, min, max) => Math.min(Math.max(n, min), max);
 

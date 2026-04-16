@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
@@ -24,6 +24,35 @@ const Goals = () => {
     weightage: 0,
   });
 
+  const fetchGoals = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/goals`);
+      setGoals(response.data);
+    } catch (err) {
+      setError('Failed to fetch goals');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const fetchManagers = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/users/managers`);
+      setManagers(response.data);
+    } catch (err) {
+      console.error('Failed to fetch managers:', err);
+    }
+  }, []);
+
+  const fetchEmployees = useCallback(async () => {
+    try {
+      const response = await axios.get(`${API_BASE_URL}/users/employees`);
+      setEmployees(response.data);
+    } catch (err) {
+      console.error('Failed to fetch employees:', err);
+    }
+  }, []);
+
   useEffect(() => {
     fetchGoals();
     if (user.role === 'employee') {
@@ -35,36 +64,7 @@ const Goals = () => {
     if (user.role === 'admin') {
       fetchManagers();
     }
-  }, []);
-
-  const fetchGoals = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/goals`);
-      setGoals(response.data);
-    } catch (err) {
-      setError('Failed to fetch goals');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchManagers = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/users/managers`);
-      setManagers(response.data);
-    } catch (err) {
-      console.error('Failed to fetch managers:', err);
-    }
-  };
-
-  const fetchEmployees = async () => {
-    try {
-      const response = await axios.get(`${API_BASE_URL}/users/employees`);
-      setEmployees(response.data);
-    } catch (err) {
-      console.error('Failed to fetch employees:', err);
-    }
-  };
+  }, [fetchEmployees, fetchGoals, fetchManagers, user.role]);
 
   const getStatusColor = (status) => {
     switch (status) {
