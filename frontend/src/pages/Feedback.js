@@ -3,6 +3,8 @@ import axios from 'axios';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 const Feedback = () => {
   const { user } = useAuth();
   const [feedback, setFeedback] = useState([]);
@@ -28,7 +30,7 @@ const Feedback = () => {
 
   const fetchFeedback = async () => {
     try {
-      const response = await axios.get(`http://localhost:5001/api/feedback/user/${user.id}`);
+      const response = await axios.get(`${API_BASE_URL}/feedback/user/${user.id}`);
       setFeedback(response.data);
     } catch (err) {
       setError('Failed to fetch feedback');
@@ -39,7 +41,7 @@ const Feedback = () => {
 
   const fetchPendingGoals = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/feedback/pending');
+      const response = await axios.get(`${API_BASE_URL}/feedback/pending`);
       setPendingGoals(response.data);
     } catch (err) {
       console.error('Failed to fetch pending goals:', err);
@@ -49,7 +51,7 @@ const Feedback = () => {
   const fetchGoals = async (userId) => {
     try {
       // For demo purposes, we'll fetch all goals and filter
-      const response = await axios.get('http://localhost:5001/api/goals');
+      const response = await axios.get(`${API_BASE_URL}/goals`);
       const userGoals = response.data.filter(goal => 
         goal.createdBy?._id === userId && goal.status === 'Active'
       );
@@ -84,7 +86,7 @@ const Feedback = () => {
     setError('');
 
     try {
-      await axios.post('http://localhost:5001/api/feedback', formData);
+      await axios.post(`${API_BASE_URL}/feedback`, formData);
       fetchFeedback();
       setShowCreateForm(false);
       setFormData({

@@ -3,6 +3,8 @@ import axios from 'axios';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 const Dashboard = () => {
   const { user } = useAuth();
   const [data, setData] = useState(null);
@@ -17,15 +19,15 @@ const Dashboard = () => {
     try {
       if (user.role === 'admin') {
         const [statsRes, goalsRes] = await Promise.all([
-          axios.get('http://localhost:5001/api/users/dashboard/stats'),
-          axios.get('http://localhost:5001/api/goals'),
+          axios.get(`${API_BASE_URL}/users/dashboard/stats`),
+          axios.get(`${API_BASE_URL}/goals`),
         ]);
         setData({
           ...statsRes.data,
           goals: goalsRes.data,
         });
       } else {
-        const response = await axios.get('http://localhost:5001/api/goals');
+        const response = await axios.get(`${API_BASE_URL}/goals`);
         setData(response.data);
       }
     } catch (err) {

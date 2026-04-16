@@ -3,6 +3,8 @@ import axios from 'axios';
 import Layout from '../components/Layout';
 import { useAuth } from '../context/AuthContext';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+
 const Goals = () => {
   const { user } = useAuth();
   const [goals, setGoals] = useState([]);
@@ -37,7 +39,7 @@ const Goals = () => {
 
   const fetchGoals = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/goals');
+      const response = await axios.get(`${API_BASE_URL}/goals`);
       setGoals(response.data);
     } catch (err) {
       setError('Failed to fetch goals');
@@ -48,7 +50,7 @@ const Goals = () => {
 
   const fetchManagers = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/users/managers');
+      const response = await axios.get(`${API_BASE_URL}/users/managers`);
       setManagers(response.data);
     } catch (err) {
       console.error('Failed to fetch managers:', err);
@@ -57,7 +59,7 @@ const Goals = () => {
 
   const fetchEmployees = async () => {
     try {
-      const response = await axios.get('http://localhost:5001/api/users/employees');
+      const response = await axios.get(`${API_BASE_URL}/users/employees`);
       setEmployees(response.data);
     } catch (err) {
       console.error('Failed to fetch employees:', err);
@@ -92,17 +94,17 @@ const Goals = () => {
 
     try {
       if (editingGoal) {
-        await axios.put(`http://localhost:5001/api/goals/${editingGoal._id}`, formData);
+        await axios.put(`${API_BASE_URL}/goals/${editingGoal._id}`, formData);
       } else {
         if (user.role === 'employee') {
-          await axios.post('http://localhost:5001/api/goals', {
+          await axios.post(`${API_BASE_URL}/goals`, {
             title: formData.title,
             description: formData.description,
             managerId: formData.managerId,
             deadline: formData.deadline,
           });
         } else {
-          await axios.post('http://localhost:5001/api/goals/assign', {
+          await axios.post(`${API_BASE_URL}/goals/assign`, {
             title: formData.title,
             description: formData.description,
             employeeId: formData.employeeId,
@@ -148,7 +150,7 @@ const Goals = () => {
     if (!window['confirm']('Are you sure you want to delete this goal?')) return;
 
     try {
-      await axios.delete(`http://localhost:5001/api/goals/${goalId}`);
+      await axios.delete(`${API_BASE_URL}/goals/${goalId}`);
       fetchGoals();
     } catch (err) {
       setError('Failed to delete goal');
@@ -160,12 +162,12 @@ const Goals = () => {
     if (!weightage || isNaN(weightage)) return;
 
     try {
-      await axios.put(`http://localhost:5001/api/goals/${goalId}/approve`, {
+      await axios.put(`${API_BASE_URL}/goals/${goalId}/approve`, {
         weightage: parseInt(weightage),
       });
       fetchGoals();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to approve goal');
+      setError('Failed to approve goal');
     }
   };
 
@@ -174,18 +176,18 @@ const Goals = () => {
     if (!reason) return;
 
     try {
-      await axios.put(`http://localhost:5001/api/goals/${goalId}/reject`, {
+      await axios.put(`${API_BASE_URL}/goals/${goalId}/reject`, {
         rejectionReason: reason,
       });
       fetchGoals();
     } catch (err) {
-      setError(err.response?.data?.message || 'Failed to reject goal');
+      setError('Failed to reject goal');
     }
   };
 
   const handleSubmitForApproval = async (goalId) => {
     try {
-      await axios.put(`http://localhost:5001/api/goals/${goalId}`, {
+      await axios.put(`${API_BASE_URL}/goals/${goalId}`, {
         status: 'Pending Approval',
       });
       fetchGoals();
